@@ -1,0 +1,64 @@
+package com01.jdbc.JDBC02;
+
+import org.junit.jupiter.api.Test;
+
+import java.sql.*;
+
+@SuppressWarnings({"all"})
+public class Utils_use {
+
+    @Test
+    public void testSelect() {
+        //1. 得到连接
+        Connection connection = null;
+        //2. 组织一个sql
+        String sql = "select * from actor where id = ?";
+        PreparedStatement preparedStatement = null;
+        ResultSet set = null;
+        //3. 创建PreparedStatement 对象
+        try {
+            connection = JDBCUtils.getConnection();
+           // System.out.println(connection.getClass()); //com.mysql.jdbc.JDBC4Connection
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, 2);//给?号赋值
+            //执行, 得到结果集
+            set = preparedStatement.executeQuery();
+            //遍历该结果集
+            while (set.next()) {
+                int id = set.getInt("id");
+                String name = set.getString("name");
+                String sex = set.getString("sex");
+                Date borndate = set.getDate("borndate");
+                String phone = set.getString("phone");
+                System.out.println(id + "\t" + name + "\t" + sex + "\t" + borndate + "\t" + phone);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            //关闭资源
+            JDBCUtils.close(set, preparedStatement, connection);
+        }
+    }
+
+    @Test
+    public void testDML() {//insert , update, delete
+        Connection connection = null;
+        //String sql = "update actor set NAME=? where id=?";
+        //String sql="delete   from actor where NAME=?";
+        String sql= "insert into actor values (?,?)";
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = JDBCUtils.getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, "上下车");
+            preparedStatement.setInt(2, 5);
+            //执行
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            JDBCUtils.close(null, preparedStatement, connection);
+        }
+    }
+}
+
